@@ -5,30 +5,66 @@
 * Exports the model so it can be used in routes like /register or /login.
 */
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
-const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
+const userSchema = new mongoose.Schema({
+  username: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 50
   },
-  password: {
-    type: String,
-    required: true
+  password: { 
+    type: String, 
+    required: true,
+    minlength: 6
+  },
+  role: { 
+    type: String, 
+    enum: ['user', 'admin'], 
+    default: 'user' 
+  },
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  lastLogin: {
+    type: Date
+  },
+  isActive: {
+    type: Boolean,
+    default: true
   }
 });
 
-// Hash password before saving
-UserSchema.pre('save', async function(next) {
+// Hash password before saving (keep existing functionality)
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Compare password method
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+// Compare password method (keep existing functionality)
+userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+// Update last login
+userSchema.methods.updateLastLogin = function() {
+  this.lastLogin = new Date();
+  return this.save();
+};
+
+// Instance method to check if user is admin
+userSchema.methods.isAdmin = function() {
+  return this.role === 'admin';
+};
+
+// Static method to find active users
+userSchema.statics.findActive = function() {
+  return this.find({ isActive: true });
+};
+
+module.exports = mongoose.model('User', userSchema);

@@ -13,20 +13,25 @@ export function AuthProvider({ children }) {
     console.log('[AuthContext] Found token in localStorage:', token ? 'Yes' : 'No');
     
     if (token) {
+      // Set axios default header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
       console.log('[AuthContext] Verifying existing token');
-      axios.get('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => {
-        console.log('[AuthContext] Token verification successful, user:', res.data.user);
-        setUser(res.data.user);
-      }).catch((err) => {
-        console.error('[AuthContext] Token verification failed:', err);
-        console.log('[AuthContext] Removing invalid token from storage');
-        localStorage.removeItem('token');
-      }).finally(() => {
-        console.log('[AuthContext] Finished auth check');
-        setLoading(false);
-      });
+      axios.get('/api/auth/me')
+        .then(res => {
+          console.log('[AuthContext] Token verification successful, user:', res.data.user);
+          setUser(res.data.user);
+        })
+        .catch((err) => {
+          console.error('[AuthContext] Token verification failed:', err);
+          console.log('[AuthContext] Removing invalid token from storage');
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+        })
+        .finally(() => {
+          console.log('[AuthContext] Finished auth check');
+          setLoading(false);
+        });
     } else {
       console.log('[AuthContext] No token found, skipping verification');
       setLoading(false);
@@ -38,7 +43,10 @@ export function AuthProvider({ children }) {
     try {
       const res = await axios.post('/api/auth/login', { username, password });
       console.log('[AuthContext] Login successful, response:', res.data);
-      localStorage.setItem('token', res.data.token);
+      
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(res.data.user);
     } catch (err) {
       console.error('[AuthContext] Login failed:', err);
@@ -54,7 +62,10 @@ export function AuthProvider({ children }) {
         password 
       });
       console.log('[AuthContext] Registration successful, response:', res.data);
-      localStorage.setItem('token', res.data.token);
+      
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(res.data.user);
       return res.data;
     } catch (err) {
@@ -71,6 +82,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     console.log('[AuthContext] Logging out user:', user?.username);
     localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   };
 

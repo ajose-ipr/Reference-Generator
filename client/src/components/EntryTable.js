@@ -1,0 +1,242 @@
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
+
+export default function EntryTable({ onEdit }) {
+  const { user } = useAuth();
+  const { entries, loading, pagination, fetchEntries, deleteEntry } = useData();
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('SL_NO');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchEntries(1, search, sortBy, sortOrder);
+  };
+
+  const handleSort = (field) => {
+    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newOrder);
+    fetchEntries(pagination.currentPage, search, field, newOrder);
+  };
+
+  const handlePageChange = (page) => {
+    fetchEntries(page, search, sortBy, sortOrder);
+  };
+
+  const handleDelete = async (entry) => {
+    if (window.confirm(`Are you sure you want to delete entry ${entry.REFERENCE_CODE}?`)) {
+      try {
+        await deleteEntry(entry._id);
+      } catch (error) {
+        alert('Error deleting entry: ' + (error.response?.data?.error || error.message));
+      }
+    }
+  };
+
+  const canModifyEntry = (entry) => {
+    return user?.role === 'admin' || entry.CREATED_BY === user?.username;
+  };
+
+  const getSortIcon = (field) => {
+    if (sortBy !== field) return '↕️';
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
+  if (loading) {
+    return (
+      <div className="card">
+        <div className="card-body text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="d-flex justify-content-between align-items-center">
+          <h5>Entries ({pagination.total})</h5>
+          
+          <form onSubmit={handleSearch} className="d-flex">
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Search entries..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: '250px' }}
+            />
+            <button type="submit" className="btn btn-outline-primary">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div className="card-body">
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('SL_NO')}
+                >
+                  SL {getSortIcon('SL_NO')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('USER_NAME')}
+                >
+                  User {getSortIcon('USER_NAME')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('PARTICULARS')}
+                >
+                  Particulars {getSortIcon('PARTICULARS')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('CLIENT_CODE')}
+                >
+                  Client {getSortIcon('CLIENT_CODE')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('CAPACITY_MW')}
+                >
+                  Capacity {getSortIcon('CAPACITY_MW')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('SITE_NAME')}
+                >
+                  Site {getSortIcon('SITE_NAME')}
+                </th>
+                <th>Reference Code</th>
+                <th 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('CREATED_AT')}
+                >
+                  Created {getSortIcon('CREATED_AT')}
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="text-center text-muted py-4">
+                    No entries found
+                  </td>
+                </tr>
+              ) : (
+                entries.map(entry => (
+                  <tr 
+                    key={entry._id} 
+                    className={entry.CREATED_BY === user?.username ? 'table-info' : ''}
+                  >
+                    <td>{entry.SL_NO}</td>
+                    <td>{entry.USER_NAME}</td>
+                    <td>
+                      <span className="badge bg-secondary">{entry.PARTICULARS}</span>
+                    </td>
+                    <td>
+                      <span className="badge bg-primary">{entry.CLIENT_CODE}</span>
+                    </td>
+                    <td>{entry.CAPACITY_MW}MW</td>
+                    <td>
+                      <span className="badge bg-success">{entry.SITE_NAME}</span>
+                    </td>
+                    <td>
+                      <code className="small">{entry.REFERENCE_CODE}</code>
+                    </td>
+                    <td>
+                      <small>
+                        {new Date(entry.CREATED_AT).toLocaleDateString()}
+                        <br />
+                        {new Date(entry.CREATED_AT).toLocaleTimeString()}
+                      </small>
+                    </td>
+                    <td>
+                      <div className="btn-group btn-group-sm">
+                        {canModifyEntry(entry) && (
+                          <>
+                            <button
+                              className="btn btn-outline-primary"
+                              onClick={() => onEdit?.(entry)}
+                              title="Edit Entry"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className="btn btn-outline-danger"
+                              onClick={() => handleDelete(entry)}
+                              title="Delete Entry"
+                            >
+                              🗑️
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  disabled={pagination.currentPage === 1}
+                >
+                  Previous
+                </button>
+              </li>
+              
+              {[...Array(pagination.totalPages)].map((_, index) => {
+                const page = index + 1;
+                return (
+                  <li 
+                    key={page} 
+                    className={`page-item ${pagination.currentPage === page ? 'active' : ''}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                );
+              })}
+              
+              <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  disabled={pagination.currentPage === pagination.totalPages}
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
+      </div>
+    </div>
+  );
+}
