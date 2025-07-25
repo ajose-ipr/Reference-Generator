@@ -10,7 +10,8 @@ export function DataProvider({ children }) {
   const [dropdownOptions, setDropdownOptions] = useState({
     PARTICULARS: [],
     CLIENT_CODE: [],
-    SITE_NAME: []
+    SITE_NAME: [],
+    STATE_NAME: []
   });
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -29,7 +30,8 @@ export function DataProvider({ children }) {
       setDropdownOptions({
         PARTICULARS: [],
         CLIENT_CODE: [],
-        SITE_NAME: []
+        SITE_NAME: [],
+        STATE_NAME: []
       });
       setPagination({
         currentPage: 1,
@@ -72,9 +74,8 @@ export function DataProvider({ children }) {
 
   const fetchDropdownOptions = async () => {
     if (!user) return;
-    
     try {
-      const [particulars, clients, sites] = await Promise.all([
+      const [particulars, clients, sites, states] = await Promise.all([
         axios.get('/api/dropdown-options/PARTICULARS', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }),
@@ -83,13 +84,17 @@ export function DataProvider({ children }) {
         }),
         axios.get('/api/dropdown-options/SITE_NAME', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }), 
+        axios.get('/api/dropdown-options/STATE_NAME', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
       ]);
       
       setDropdownOptions({
         PARTICULARS: particulars.data || [],
         CLIENT_CODE: clients.data || [],
-        SITE_NAME: sites.data || []
+        SITE_NAME: sites.data || [],
+        STATE_NAME: states.data || [],
       });
     } catch (error) {
       console.error('Error fetching dropdown options:', error);

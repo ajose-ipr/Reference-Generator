@@ -43,19 +43,23 @@ function validateEntryData(data) {
   if (!data.PARTICULARS || data.PARTICULARS.trim().length === 0) {
     errors.push('PARTICULARS is required');
   }
-  
-  if (!data.CLIENT_CODE || data.CLIENT_CODE.trim().length !== 4) {
-    errors.push('CLIENT_CODE must be exactly 4 characters');
-  }
-  
+
   if (!data.CAPACITY_MW || data.CAPACITY_MW <= 0) {
     errors.push('CAPACITY_MW must be a positive number');
   }
-  
-  if (!data.SITE_NAME || data.SITE_NAME.trim().length !== 4) {
-    errors.push('SITE_NAME must be exactly 4 characters');
+
+  if (!data.CLIENT_CODE || data.CLIENT_CODE.trim().length < 2 || data.CLIENT_CODE.trim().length > 4) {
+    errors.push('CLIENT_CODE must be between 2 and 4 characters');
   }
-  
+
+  if (!data.SITE_NAME || data.SITE_NAME.trim().length < 2 || data.SITE_NAME.trim().length > 4) {
+    errors.push('SITE_NAME must be between 2 and 4 characters');
+  }
+
+  if (!data.STATE_NAME || data.STATE_NAME.trim().length < 2 || data.STATE_NAME.trim().length > 4) {
+    errors.push('STATE_NAME must be between 2 and 4 characters');
+  }
+
   return {
     isValid: errors.length === 0,
     errors
@@ -69,11 +73,12 @@ function generateReferenceCode(entryData) {
     CLIENT_CODE,
     CAPACITY_MW,
     SITE_NAME,
+    STATE_NAME,
     CUMULATIVE_NUMBER,
     INCREMENTAL_NUMBER
   } = entryData;
   
-  return `IPR/${PARTICULARS.toUpperCase()}/${CLIENT_CODE.toUpperCase().slice(0, 3)}/${CAPACITY_MW}MW/${SITE_NAME.toUpperCase()}/${CUMULATIVE_NUMBER}/${INCREMENTAL_NUMBER.toString().padStart(2, '0')}`;
+  return `IPR/${PARTICULARS.toUpperCase()}/${CLIENT_CODE.toUpperCase().slice(0, 3)}/${CAPACITY_MW}MW/${STATE_NAME.toUpperCase()}/${SITE_NAME.toUpperCase()}/${CUMULATIVE_NUMBER}/${INCREMENTAL_NUMBER.toString().padStart(2, '0')}`;
 }
 
 // Sanitize input data

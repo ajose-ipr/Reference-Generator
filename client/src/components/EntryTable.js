@@ -115,6 +115,12 @@ export default function EntryTable({ onEdit }) {
                 </th>
                 <th 
                   style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort('STATE_NAME')}
+                >
+                  State {getSortIcon('STATE_NAME')}
+                </th>
+                <th 
+                  style={{ cursor: 'pointer' }}
                   onClick={() => handleSort('SITE_NAME')}
                 >
                   Site {getSortIcon('SITE_NAME')}
@@ -151,6 +157,9 @@ export default function EntryTable({ onEdit }) {
                       <span className="badge bg-primary">{entry.CLIENT_CODE}</span>
                     </td>
                     <td>{entry.CAPACITY_MW}MW</td>
+                    <td>
+                      <span className="badge bg-success">{entry.STATE_NAME}</span>
+                    </td>
                     <td>
                       <span className="badge bg-success">{entry.SITE_NAME}</span>
                     </td>

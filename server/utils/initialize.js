@@ -2,6 +2,45 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const DropdownOption = require('../models/DropdownOption');
 
+// Dictionary mapping for PARTICULARS
+const PARTICULARS_MAPPING = {
+  'TC': 'Type Check',
+  'GC': 'Grid Connection',
+  'PQM': 'Power Quality Monitor',
+  'EVF': 'Emergency Verification',
+  'OPT': 'Optimization',
+  'PS': 'Power System',
+  'SS': 'Substation',
+  'Others': 'Others (Custom)'
+};
+
+// Dictionary mapping for CLIENT_CODE
+const CLIENT_CODE_MAPPING = {
+  'HFEX': 'Haryana Electricity Exchange',
+  'ADN': 'Adani Power',
+  'HEXA': 'Hexagon Energy',
+  'GE': 'General Electric'
+};
+
+// Dictionary mapping for SITE_NAME
+const SITE_NAME_MAPPING = {
+  'SJPR': 'Sarjapur',
+  'BNSK': 'Banashankari',
+  'GRID': 'Grid Station',
+  'SUBJ': 'Subject Location'
+};
+
+// Dictionary mapping for SITE_NAME
+const STATE_NAME_MAPPING = {
+  'KA': 'KARNATAKA',
+  'GJ': 'GUJARAT',
+  'MH': 'MAHARASHTRA',
+  'TN': 'TAMIL NADU',
+  'AP': 'ANDHRA PRADESH',
+  'TS': 'TELANGANA',
+  'RJ': 'RAJASTHAN',
+};
+
 // Initialize default data
 async function initializeDefaults() {
   try {
@@ -40,15 +79,14 @@ async function createDefaultAdmin() {
 // Create default dropdown options
 async function createDefaultDropdownOptions() {
   try {
-    // Default PARTICULARS options
-    const defaultParticulars = ['TC', 'GC', 'PQM', 'EVF', 'OPT', 'PS', 'SS'];
-    
-    for (const particular of defaultParticulars) {
+    // Create PARTICULARS options with display names
+    for (const [value, displayName] of Object.entries(PARTICULARS_MAPPING)) {
       await DropdownOption.findOneAndUpdate(
-        { type: 'PARTICULARS', value: particular },
+        { type: 'PARTICULARS', value: value },
         { 
           type: 'PARTICULARS', 
-          value: particular, 
+          value: value,
+          displayName: displayName,
           isCustom: false, 
           createdBy: 'system',
           isActive: true
@@ -57,15 +95,14 @@ async function createDefaultDropdownOptions() {
       );
     }
     
-    // Default CLIENT_CODE options
-    const defaultClients = ['HFEX', 'ADN', 'HEXA', 'GE'];
-    
-    for (const client of defaultClients) {
+    // Create CLIENT_CODE options with display names
+    for (const [value, displayName] of Object.entries(CLIENT_CODE_MAPPING)) {
       await DropdownOption.findOneAndUpdate(
-        { type: 'CLIENT_CODE', value: client },
+        { type: 'CLIENT_CODE', value: value },
         { 
           type: 'CLIENT_CODE', 
-          value: client, 
+          value: value,
+          displayName: displayName,
           isCustom: false, 
           createdBy: 'system',
           isActive: true
@@ -73,16 +110,31 @@ async function createDefaultDropdownOptions() {
         { upsert: true }
       );
     }
-    
-    // Default SITE_NAME options (examples)
-    const defaultSites = ['SITE', 'MAIN', 'GRID', 'SUBJ'];
-    
-    for (const site of defaultSites) {
+
+    // Create SITE_NAME options with display names
+    for (const [value, displayName] of Object.entries(STATE_NAME_MAPPING)) {
       await DropdownOption.findOneAndUpdate(
-        { type: 'SITE_NAME', value: site },
+        { type: 'STATE_NAME', value: value },
+        { 
+          type: 'STATE_NAME', 
+          value: value,
+          displayName: displayName,
+          isCustom: false, 
+          createdBy: 'system',
+          isActive: true
+        },
+        { upsert: true }
+      );
+    }
+
+    // Create SITE_NAME options with display names
+    for (const [value, displayName] of Object.entries(SITE_NAME_MAPPING)) {
+      await DropdownOption.findOneAndUpdate(
+        { type: 'SITE_NAME', value: value },
         { 
           type: 'SITE_NAME', 
-          value: site, 
+          value: value,
+          displayName: displayName,
           isCustom: false, 
           createdBy: 'system',
           isActive: true
@@ -91,10 +143,11 @@ async function createDefaultDropdownOptions() {
       );
     }
     
-    console.log('📋 Dropdown options initialized');
-    console.log(`   - PARTICULARS: ${defaultParticulars.join(', ')}`);
-    console.log(`   - CLIENT_CODE: ${defaultClients.join(', ')}`);
-    console.log(`   - SITE_NAME: ${defaultSites.join(', ')}`);
+   console.log('📋 Dropdown options initialized with display names');
+    console.log(`   - PARTICULARS: ${Object.keys(PARTICULARS_MAPPING).join(', ')}`);
+    console.log(`   - CLIENT_CODE: ${Object.keys(CLIENT_CODE_MAPPING).join(', ')}`);
+    console.log(`   - SITE_NAME: ${Object.keys(SITE_NAME_MAPPING).join(', ')}`);
+     console.log(`   - STATE_NAME: ${Object.keys(STATE_NAME_MAPPING).join(', ')}`);
   } catch (error) {
     console.error('❌ Error creating dropdown options:', error);
   }
@@ -120,18 +173,21 @@ async function createSampleEntries() {
         PARTICULARS: 'TC',
         CLIENT_CODE: 'HFEX',
         CAPACITY_MW: 100,
+        STATE_NAME: 'KA',
         SITE_NAME: 'MAIN'
       },
       {
         PARTICULARS: 'GC',
         CLIENT_CODE: 'ADN',
         CAPACITY_MW: 50,
+        STATE_NAME: 'GJ',
         SITE_NAME: 'GRID'
       },
       {
         PARTICULARS: 'PQM',
         CLIENT_CODE: 'HEXA',
         CAPACITY_MW: 75,
+        STATE_NAME: 'MH',
         SITE_NAME: 'SUBJ'
       }
     ];
@@ -146,6 +202,7 @@ async function createSampleEntries() {
         PARTICULARS: data.PARTICULARS,
         CLIENT_CODE: data.CLIENT_CODE,
         CAPACITY_MW: data.CAPACITY_MW,
+        STATE_NAME: data.STATE_NAME,
         SITE_NAME: data.SITE_NAME,
         CUMULATIVE_NUMBER: `${currentFY.toString().slice(-2)}${i + 1}`,
         INCREMENTAL_NUMBER: i + 1,

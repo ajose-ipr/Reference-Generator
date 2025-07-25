@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/:type', authenticateToken, async (req, res) => {
   try {
     const { type } = req.params;
-    const validTypes = ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME'];
+    const validTypes = ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME', 'STATE_NAME'];
     
     if (!validTypes.includes(type.toUpperCase())) {
       return res.status(400).json({ error: 'Invalid dropdown type' });
@@ -31,14 +31,15 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Type and value are required' });
     }
     
-    const validTypes = ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME'];
+    const validTypes = ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME', 'STATE_NAME'];
     if (!validTypes.includes(type.toUpperCase())) {
       return res.status(400).json({ error: 'Invalid dropdown type' });
     }
     
     // Validate value length for certain types
-    if ((type.toUpperCase() === 'CLIENT_CODE' || type.toUpperCase() === 'SITE_NAME') && value.length !== 4) {
-      return res.status(400).json({ error: `${type} must be exactly 4 characters` });
+    if (
+      (type.toUpperCase() === 'CLIENT_CODE' || type.toUpperCase() === 'SITE_NAME' || type.toUpperCase() === 'STATE_NAME') &&   (value.length <= 1 || value.length >= 5)) {
+      return res.status(400).json({ error: `${type} must be between 2-4 characters` });
     }
     
     const option = await DropdownOption.addOption(type, value, req.user.username, true);

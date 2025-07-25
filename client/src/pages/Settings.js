@@ -100,6 +100,7 @@ export default function Settings() {
                     <option value="PARTICULARS">Particulars</option>
                     <option value="CLIENT_CODE">Client Code</option>
                     <option value="SITE_NAME">Site Name</option>
+                    <option value="STATE_NAME">State Name</option>
                   </select>
                 </div>
                 <div className="col-md-6">
@@ -295,8 +296,9 @@ export default function Settings() {
                 <h6>Dropdown Option Rules</h6>
                 <ul className="small">
                   <li><strong>PARTICULARS:</strong> Can be any text up to 10 characters</li>
-                  <li><strong>CLIENT_CODE:</strong> Must be exactly 4 characters</li>
-                  <li><strong>SITE_NAME:</strong> Must be exactly 4 characters</li>
+                  <li><strong>CLIENT_CODE:</strong> Must be between 2-4 characters</li>
+                  <li><strong>SITE_NAME:</strong> Must be between 2-4 characters</li>
+                  <li><strong>STATE_NAME:</strong> Must be between 2-4 characters</li>
                   <li><strong>System Options:</strong> Cannot be deleted, only deactivated</li>
                   <li><strong>Custom Options:</strong> Can be deleted permanently</li>
                 </ul>
@@ -304,10 +306,10 @@ export default function Settings() {
               <div className="col-md-6">
                 <h6>Reference Code Format</h6>
                 <p className="small">
-                  <code>IPR/[PARTICULARS]/[CLIENT_CODE]/[CAPACITY]MW/[SITE_NAME]/[CUMULATIVE]/[INCREMENTAL]</code>
+                  <code>IPR/[PARTICULARS]/[CLIENT_CODE]/[CAPACITY]MW/[STATE_NAME]/[SITE_NAME]/[CUMULATIVE]/[INCREMENTAL]</code>
                 </p>
                 <p className="small text-muted">
-                  Example: <code>IPR/TC/HFE/100MW/MAIN/2501/01</code>
+                  Example: <code>IPR/TC/HFE/100MW/KA/SJPR/2501/01</code>
                 </p>
               </div>
             </div>

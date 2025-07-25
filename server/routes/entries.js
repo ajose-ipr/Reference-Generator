@@ -23,6 +23,7 @@ router.get('/', authenticateToken, async (req, res) => {
           { PARTICULARS: { $regex: search, $options: 'i' } },
           { CLIENT_CODE: { $regex: search, $options: 'i' } },
           { SITE_NAME: { $regex: search, $options: 'i' } },
+          { STATE_NAME: { $regex: search, $options: 'i' } },
           { REFERENCE_CODE: { $regex: search, $options: 'i' } }
         ]
       };
@@ -73,15 +74,19 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create new entry
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { PARTICULARS, CLIENT_CODE, CAPACITY_MW, SITE_NAME } = req.body;
+    const { PARTICULARS, CLIENT_CODE, CAPACITY_MW, SITE_NAME, STATE_NAME  } = req.body;
     
     // Validation
-    if (!PARTICULARS || !CLIENT_CODE || !CAPACITY_MW || !SITE_NAME) {
+    if (!PARTICULARS || !CLIENT_CODE || !CAPACITY_MW || !SITE_NAME || !STATE_NAME) {
       return res.status(400).json({ error: 'All fields are required' });
     }
     
-    if (CLIENT_CODE.length !== 4 || SITE_NAME.length !== 4) {
-      return res.status(400).json({ error: 'CLIENT_CODE and SITE_NAME must be exactly 4 characters' });
+    if(
+      CLIENT_CODE.length < 2 || CLIENT_CODE.length > 4 ||
+      SITE_NAME.length < 2 || SITE_NAME.length > 4 ||
+      STATE_NAME.length < 2 || STATE_NAME.length > 4
+    ) {
+      return res.status(400).json({ error: 'CLIENT_CODE, STATE_NAME, and SITE_NAME must be between 2-4characters' });
     }
     
     if (CAPACITY_MW <= 0) {
@@ -107,6 +112,7 @@ router.post('/', authenticateToken, async (req, res) => {
       CLIENT_CODE: CLIENT_CODE.toUpperCase(),
       CAPACITY_MW,
       SITE_NAME: SITE_NAME.toUpperCase(),
+      STATE_NAME: STATE_NAME.toUpperCase(),
       CUMULATIVE_NUMBER: cumulativeNumber,
       INCREMENTAL_NUMBER: incrementalNumber,
       CREATED_BY: req.user.username
@@ -132,15 +138,19 @@ router.post('/', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, canModifyEntry, async (req, res) => {
   try {
     const entry = req.entry; // Set by canModifyEntry middleware
-    const { PARTICULARS, CLIENT_CODE, CAPACITY_MW, SITE_NAME } = req.body;
+    const { PARTICULARS, CLIENT_CODE, CAPACITY_MW, SITE_NAME, STATE_NAME } = req.body;
     
     // Validation
-    if (CLIENT_CODE && (CLIENT_CODE.length !== 4)) {
-      return res.status(400).json({ error: 'CLIENT_CODE must be exactly 4 characters' });
+    if (CLIENT_CODE && (CLIENT_CODE.length < 2 || CLIENT_CODE.length > 4)) {
+      return res.status(400).json({ error: 'CLIENT_CODE must be between 2 and 4 characters' });
     }
-    
-    if (SITE_NAME && (SITE_NAME.length !== 4)) {
-      return res.status(400).json({ error: 'SITE_NAME must be exactly 4 characters' });
+
+    if (SITE_NAME && (SITE_NAME.length < 2 || SITE_NAME.length > 4)) {
+      return res.status(400).json({ error: 'SITE_NAME must be between 2 and 4 characters' });
+    }
+
+    if (STATE_NAME && (STATE_NAME.length < 2 || STATE_NAME.length > 4)) {
+      return res.status(400).json({ error: 'STATE_NAME must be between 2 and 4 characters' });
     }
     
     if (CAPACITY_MW && CAPACITY_MW <= 0) {
@@ -154,6 +164,7 @@ router.put('/:id', authenticateToken, canModifyEntry, async (req, res) => {
     if (CLIENT_CODE) entry.CLIENT_CODE = CLIENT_CODE.toUpperCase();
     if (CAPACITY_MW) entry.CAPACITY_MW = CAPACITY_MW;
     if (SITE_NAME) entry.SITE_NAME = SITE_NAME.toUpperCase();
+    if (STATE_NAME) entry.STATE_NAME = STATE_NAME.toUpperCase();
     entry.MODIFIED_BY = req.user.username;
     
     // Regenerate reference code

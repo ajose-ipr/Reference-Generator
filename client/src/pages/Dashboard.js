@@ -197,6 +197,7 @@ export default function Dashboard() {
                           <span className="badge bg-secondary me-1">{entry.PARTICULARS}</span>
                           <span className="badge bg-primary me-1">{entry.CLIENT_CODE}</span>
                           <span className="badge bg-success me-1">{entry.CAPACITY_MW}MW</span>
+                          <span className="badge bg-warning">{entry.STATE_NAME}</span>
                           <span className="badge bg-info">{entry.SITE_NAME}</span>
                         </p>
                         <small>

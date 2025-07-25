@@ -4,13 +4,18 @@ const dropdownSchema = new mongoose.Schema({
   type: { 
     type: String, 
     required: true,
-    enum: ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME'],
+    enum: ['PARTICULARS', 'CLIENT_CODE', 'SITE_NAME', 'STATE_NAME'],
     uppercase: true
   },
   value: { 
     type: String, 
     required: true,
     uppercase: true,
+    trim: true
+  },
+    displayName: {
+    type: String,
+    required: true,
     trim: true
   },
   isCustom: { 
@@ -36,7 +41,7 @@ dropdownSchema.index({ type: 1, value: 1 }, { unique: true });
 
 // Static method to get options by type
 dropdownSchema.statics.getByType = function(type) {
-  return this.find({ type: type.toUpperCase(), isActive: true }).sort({ value: 1 });
+  return this.find({ type: type.toUpperCase(), isActive: true }).sort({ displayName: 1 });
 };
 
 // Static method to add new option
@@ -53,6 +58,7 @@ dropdownSchema.statics.addOption = async function(type, value, createdBy, isCust
   return this.create({
     type: upperType,
     value: upperValue,
+    displayName: displayName || upperValue,
     isCustom,
     createdBy
   });

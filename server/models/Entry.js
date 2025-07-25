@@ -20,7 +20,7 @@ const entrySchema = new mongoose.Schema({
     type: String, 
     required: true, 
     maxlength: 4,
-    minlength: 4,
+    minlength: 2,
     uppercase: true,
     trim: true
   },
@@ -29,11 +29,19 @@ const entrySchema = new mongoose.Schema({
     required: true,
     min: 0.1
   },
+    STATE_NAME: { 
+    type: String, 
+    required: true, 
+    maxlength: 4,
+    minlength: 2,
+    uppercase: true,
+    trim: true
+  },
   SITE_NAME: { 
     type: String, 
     required: true, 
     maxlength: 4,
-    minlength: 4,
+    minlength: 2,
     uppercase: true,
     trim: true
   },
@@ -97,7 +105,7 @@ entrySchema.statics.getIncrementalNumber = async function(financialYear) {
 
 // Instance method to generate reference code
 entrySchema.methods.generateReferenceCode = function() {
-  const code = `IPR/${this.PARTICULARS}/${this.CLIENT_CODE.slice(0, 3)}/${this.CAPACITY_MW}MW/${this.SITE_NAME}/${this.CUMULATIVE_NUMBER}/${this.INCREMENTAL_NUMBER.toString().padStart(2, '0')}`;
+  const code = `IPR/${this.PARTICULARS}/${this.CLIENT_CODE.slice(0, 3)}/${this.CAPACITY_MW}MW/${this.STATE_NAME}/${this.SITE_NAME}/${this.CUMULATIVE_NUMBER}/${this.INCREMENTAL_NUMBER.toString().padStart(2, '0')}`;
   this.REFERENCE_CODE = code;
   return code;
 };
