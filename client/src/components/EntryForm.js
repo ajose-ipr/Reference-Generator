@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../context/DataContext';
+import { getParticularsFullForm, getClientCodeFullForm, getSiteNameFullForm } from '../utils/constants';
 
 export default function EntryForm({ entry = null, onSuccess, onCancel }) {
   const { dropdownOptions, createEntry, updateEntry, addCustomOption } = useData();
@@ -197,6 +198,20 @@ export default function EntryForm({ entry = null, onSuccess, onCancel }) {
             
             <div className="col-md-3">
               <div className="mb-3">
+                <label className="form-label">Particulars Full Form</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={getParticularsFullForm(formData.PARTICULARS)}
+                  readOnly
+                  style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                />
+                <small className="form-text text-muted">Auto-generated from selected particulars</small>
+              </div>
+            </div>
+            
+            <div className="col-md-3">
+              <div className="mb-3">
                 <label className="form-label">Client Code *</label>
                 <select
                   className={`form-select ${errors.CLIENT_CODE ? 'is-invalid' : ''}`}
@@ -240,6 +255,20 @@ export default function EntryForm({ entry = null, onSuccess, onCancel }) {
                 {errors.CLIENT_CODE && (
                   <div className="invalid-feedback">{errors.CLIENT_CODE}</div>
                 )}
+              </div>
+            </div>
+            
+            <div className="col-md-3">
+              <div className="mb-3">
+                <label className="form-label">Client Full Form</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={getClientCodeFullForm(formData.CLIENT_CODE)}
+                  readOnly
+                  style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                />
+                <small className="form-text text-muted">Auto-generated from selected client code</small>
               </div>
             </div>
             
@@ -352,6 +381,20 @@ export default function EntryForm({ entry = null, onSuccess, onCancel }) {
                 {errors.SITE_NAME && (
                   <div className="invalid-feedback">{errors.SITE_NAME}</div>
                 )}
+              </div>
+            </div>
+            
+            <div className="col-md-3">
+              <div className="mb-3">
+                <label className="form-label">Site Full Form</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={getSiteNameFullForm(formData.SITE_NAME)}
+                  readOnly
+                  style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                />
+                <small className="form-text text-muted">Auto-generated from selected site name</small>
               </div>
             </div>
           </div>

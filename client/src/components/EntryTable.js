@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { getParticularsFullForm, getClientCodeFullForm, getSiteNameFullForm } from '../utils/constants';
 
 export default function EntryTable({ onEdit }) {
   const { user } = useAuth();
@@ -101,12 +102,14 @@ export default function EntryTable({ onEdit }) {
                 >
                   Particulars {getSortIcon('PARTICULARS')}
                 </th>
+                <th>Particulars Full Form</th>
                 <th 
                   style={{ cursor: 'pointer' }}
                   onClick={() => handleSort('CLIENT_CODE')}
                 >
                   Client {getSortIcon('CLIENT_CODE')}
                 </th>
+                <th>Client Full Form</th>
                 <th 
                   style={{ cursor: 'pointer' }}
                   onClick={() => handleSort('CAPACITY_MW')}
@@ -125,6 +128,7 @@ export default function EntryTable({ onEdit }) {
                 >
                   Site {getSortIcon('SITE_NAME')}
                 </th>
+                <th>Site Full Form</th>
                 <th>Reference Code</th>
                 <th 
                   style={{ cursor: 'pointer' }}
@@ -138,7 +142,7 @@ export default function EntryTable({ onEdit }) {
             <tbody>
               {entries.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="text-center text-muted py-4">
+                  <td colSpan="12" className="text-center text-muted py-4">
                     No entries found
                   </td>
                 </tr>
@@ -154,7 +158,13 @@ export default function EntryTable({ onEdit }) {
                       <span className="badge bg-secondary">{entry.PARTICULARS}</span>
                     </td>
                     <td>
+                      <small className="text-muted">{getParticularsFullForm(entry.PARTICULARS)}</small>
+                    </td>
+                    <td>
                       <span className="badge bg-primary">{entry.CLIENT_CODE}</span>
+                    </td>
+                    <td>
+                      <small className="text-muted">{getClientCodeFullForm(entry.CLIENT_CODE)}</small>
                     </td>
                     <td>{entry.CAPACITY_MW}MW</td>
                     <td>
@@ -162,6 +172,9 @@ export default function EntryTable({ onEdit }) {
                     </td>
                     <td>
                       <span className="badge bg-success">{entry.SITE_NAME}</span>
+                    </td>
+                    <td>
+                      <small className="text-muted">{getSiteNameFullForm(entry.SITE_NAME)}</small>
                     </td>
                     <td>
                       <code className="small">{entry.REFERENCE_CODE}</code>
