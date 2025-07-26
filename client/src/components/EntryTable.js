@@ -36,7 +36,7 @@ export default function EntryTable({ onEdit }) {
   };
 
   const canModifyEntry = (entry) => {
-    return user?.role === 'admin' || entry.CREATED_BY === user?.username;
+    return user?.role === 'admin' || (entry.CREATED_BY === user?.username && entry.isActive);
   };
 
   const getSortIcon = (field) => {
